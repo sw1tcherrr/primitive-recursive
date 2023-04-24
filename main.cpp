@@ -2,6 +2,8 @@
 #include <functional>
 #include <cassert>
 
+// basis functions
+
 constexpr auto Z = [](auto) -> int {
 	return 0;
 };
@@ -34,10 +36,14 @@ constexpr auto R = [](int y, std::same_as<int> auto... xs) -> int {
 	return res;
 };
 
+// helpers
+
 constexpr auto id = U<1, 1>;
 
 template <auto F>
 constexpr auto flip = S<F, U<2, 2>, U<1, 2>>;
+
+// numeric constants
 
 template <int A, size_t Arity>
 constexpr auto num = S<N, num<A - 1, Arity>>;
@@ -54,23 +60,36 @@ constexpr auto one = num<1, Arity>;
 template <size_t Arity>
 constexpr auto two = num<1, Arity>;
 
+// projections of binary function
+
 template <auto F, int A>
 constexpr auto proj1 = S<F, num<A, 1>, id>;
 
 template <auto F, int B>
 constexpr auto proj2 = S<F, id, num<B, 1>>;
 
+// getters in R
+
+template <size_t N>
+constexpr auto yi = U<1, N>;
+
+template <size_t N>
+constexpr auto res = U<2, N>;
+
+template <size_t I, size_t N_xs>
+constexpr auto xs = U<2 + I, 2 + N_xs>;
+
 int main() {
-	auto add = R<id, S<N, U<2, 3>>>;
+	auto add = R<id, S<N, res<3>>>;
 	std::cout << add(1, 2) << "\n";
 
 	// 1a
-	auto mul = R<Z, S<add, U<2, 3>, U<3, 3>>>;
+	auto mul = R<Z, S<add, res<3>, xs<1, 1>>>;
 	std::cout << mul(54, 21) << "\n";
 
-	auto dec_y = R<Z, U<1, 3>>;
+	auto dec_y = R<Z, yi<3>>;
 	auto dec_x = S<dec_y, id, Z>;
-	auto sub_ = R<id, S<dec_x, U<2, 3>>>; // x2 - x1
+	auto sub_ = R<id, S<dec_x, res<3>>>; // x2 - x1
 	auto sub = flip<sub_>; // x1 - x2
 	std::cout << sub(5, 2) << "\n";
 
@@ -79,7 +98,7 @@ int main() {
 	std::cout << LE(2, 10) << " " << LE(10, 2) << " " << LE(10, 10) << "\n";
 
 	// 1c
-	auto fact = S<R<one<1>, S<mul, S<N, U<1, 3>>, U<2, 3>>>, id, id>;
+	auto fact = S<R<one<1>, S<mul, S<N, yi<3>>, res<3>>>, id, id>;
 	std::cout << fact(0) << " " << fact(1) << " " << fact(5) << "\n";
 
 	// 1d
@@ -87,16 +106,17 @@ int main() {
 			  S<
 				R<zero<2>,
 				  S<add, // res += 1 if y * (res+1) <= x
-					U<2, 4>,
+					res<4>,
 					S<LE, // y * (res+1) <= x
-					  S<mul, U<4, 4>, S<N, U<2, 4>>>,
-					  U<3, 4>
+					  S<mul, xs<2, 2>, S<N, res<4>>>,
+					  xs<1, 2>
 					>
 				  >
 			    >,
-			    U<1, 2>, U<1, 2>, U<2, 2>
+			    U<1, 2>, U<1, 2>, U<2, 2> // x, x, y
 			  >;
 	std::cout << div(5, 2) << " " << div(4, 2) << " " << div(100, 25) << " " << div(0, 5) << " " << div(5, 0) << "\n";
+
 	auto mod = S<sub, U<1, 2>, S<mul, U<2, 2>, S<div, U<1, 2>, U<2, 2>>>>; // a - b * (a / b)
 	std::cout << mod(5, 2) << " " << mod(4, 2) << " " << mod(121, 25) << " " << mod(0, 5) << " " << mod(5, 0) << "\n";
 
@@ -104,10 +124,10 @@ int main() {
 	auto sqrt = S<
 				  R<zero<1>,
 				    S<add, // res += 1 if ((yi+1) * (yi+1) <= x)
-					  U<2, 3>,
+					  res<3>,
 					  S<LE,
-					    S<mul, S<N, U<1, 3>>, S<N, U<1, 3>>>,
-						U<3, 3>
+					    S<mul, S<N, yi<3>>, S<N, yi<3>>>,
+						xs<1, 1>
 					  >
 				    >
 	        	  >,
@@ -124,9 +144,9 @@ int main() {
 					     >,
 						 two<2>
 					   >,
-	        		   S<N, U<2, 4> >
+	        		   S<N, res<4> >
 				     >,
-				   U<2, 2>, U<1, 2>, U<2, 2>
+				   U<2, 2>, U<1, 2>, U<2, 2> // b, a, b
 				 >;
 	std::cout << pair(0, 0) << " " << pair(1, 1) << " " << pair(1, 3) << " " << pair(3, 2) << "\n";
 
