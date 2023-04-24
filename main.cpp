@@ -58,7 +58,7 @@ template <size_t Arity>
 constexpr auto one = num<1, Arity>;
 
 template <size_t Arity>
-constexpr auto two = num<1, Arity>;
+constexpr auto two = num<2, Arity>;
 
 // projections of binary function
 
@@ -152,6 +152,10 @@ int main() {
 
 	for (int i = 0; i < 5; ++i) {
 		std::cout << proj1<pair, 1>(i) << " ";
+	}
+	std::cout << "\n";
+	for (int i = 0; i < 5; ++i) {
+		std::cout << proj2<pair, 1>(i) << " ";
 	}
 	std::cout << "\n";
 
