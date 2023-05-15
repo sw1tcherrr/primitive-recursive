@@ -89,8 +89,7 @@ int main() {
 
 	auto dec_y = R<Z, yi<3>>;
 	auto dec_x = S<dec_y, id, Z>;
-	auto sub_ = R<id, S<dec_x, res<3>>>; // x2 - x1
-	auto sub = flip<sub_>; // x1 - x2
+	auto sub = flip<R<id, S<dec_x, res<3>>>>;
 	std::cout << sub(5, 2) << "\n";
 
 	// 1b
@@ -158,6 +157,24 @@ int main() {
 		std::cout << proj2<pair, 1>(i) << " ";
 	}
 	std::cout << "\n";
+
+	static_assert(pair(0, 0) == 0);
+	static_assert(pair(1, 1) == 4);
+	static_assert(pair(1, 3) == 13);
+	static_assert(pair(3, 2) == 17);
+
+	static_assert(proj1<pair, 1>(0) == 1);
+	static_assert(proj1<pair, 1>(1) == 4);
+	static_assert(proj1<pair, 1>(2) == 8);
+	static_assert(proj1<pair, 1>(3) == 13);
+	static_assert(proj1<pair, 1>(4) == 19);
+
+	static_assert(proj2<pair, 1>(0) == 2);
+	static_assert(proj2<pair, 1>(1) == 4);
+	static_assert(proj2<pair, 1>(2) == 7);
+	static_assert(proj2<pair, 1>(3) == 11);
+	static_assert(proj2<pair, 1>(4) == 16);
+
 
 	return 0;
 }
